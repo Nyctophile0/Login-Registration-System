@@ -1,0 +1,5 @@
+termcolor
+pwinput
+sqlite3
+email_validator
+werkzeug
