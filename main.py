@@ -4,8 +4,7 @@ import time
 import pyfiglet
 from termcolor import cprint
 import pwinput
-from email_validator import validate_email, EmailNotValidError
-from werkzeug.security import check_password_hash, generate_password_hash
+import argon2
 
 # Connection
 con = sqlite3.connect('test.db')
@@ -99,6 +98,9 @@ def header():
 
 
 def main():
+
+    argon2Hasher = argon2.PasswordHasher(time_cost=16, memory_cost=2**15, parallelism=2, hash_len=32, salt_len=16)
+
     while True:
         print()
         print("1.Create a table\n2.Login\n3.Register\n4.Delete/ Drop Table\n5.Exit")
@@ -151,7 +153,7 @@ def main():
             name = variables[0]
             email = variables[1]
             password = variables[2]
-            cur.execute('INSERT INTO user (username, name, email, password_hash) VALUES (?, ?, ?, ?)', (username, name, email, generate_password_hash(password)))
+            cur.execute('INSERT INTO user (username, name, email, password_hash) VALUES (?, ?, ?, ?)', (username, name, email, argon2Hasher.hash(password)))
 
             con.commit()
             cprint("\nUser Registered!", 'green')
@@ -190,7 +192,19 @@ def main():
             for x in user_data1:
                 user_list.append(x)
 
-            if not check_password_hash(user_list[0][4], password):
+            try:
+                argon2Hasher.verify(user_list[0][4], password)
+                print()
+                cprint("You are successfully logged in! :)", 'green')
+                print()
+                print(f'Your name: "{user_list[0][2]}" and the password hash is:"{user_list[0][4]}"')
+                print(f"Your username: '{user_list[0][1]}' and the email address is: '{user_list[0][3]}'")
+                print()
+                break
+            except:
+                cprint("\nWrong Password!. Can't log you in.", 'red')
+                exit()
+            '''if not check_password_hash(user_list[0][4], password):
                 cprint("\nWrong Password!. Can't log you in.", 'red')
             else:
                 print()
@@ -199,7 +213,7 @@ def main():
                 print(f'Your name: "{user_list[0][2]}" and the password hash is:"{user_list[0][4]}"')
                 print(f"Your username: '{user_list[0][1]}' and the email address is: '{user_list[0][3]}'")
                 print()
-                exit()
+                exit()'''
 
         elif choice == '4':
             print("1.Delete entire table data\n2.Drop table\n3.Exit")
