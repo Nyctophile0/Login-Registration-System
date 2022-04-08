@@ -5,7 +5,7 @@ A script to -
 + Register user
 + Login using credentials
 
-The password is hashed which ensures maximum security. The credentials is stored in the database which you have to create first before doing anything else.
+The password is hashed using 'argon2' kdf function which is considered highly secured function in the market and ensures maximum security. The credentials is stored in the database which you have to create first before doing anything else.
 
 How to use?
 + Firstly create a table (database file 'test.db' will automatically be created when you first run the program)
